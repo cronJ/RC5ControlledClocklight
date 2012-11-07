@@ -63,19 +63,27 @@ int main(void)
 	InitTimer1();
 	InitTimer0();
 	
+	// Set LED pin to output
 	LED_DDR = (1 << LED_OUT); 
 	
+	// Enable interrupts
 	sei();
 	
     while(1)
     {
+		// If command exists ... compare
 		if (CmdDone == 1)
 		{
+			// If matches required command
 			if (RC5_cmd_val == RC5_CMD)
 			{
+				// Set output to 1
 				LED_PORT |= (1 << LED_OUT);
+				// Set CmdMatch to 1 ... no new command will be sampled 
 				CmdMatch = 1;
+				// Set TimerValue to zero
 				TimerValue = 0;
+				// Start counting
 				StartTimer0();
 			}
 			
@@ -100,6 +108,7 @@ ISR(TIMER1_CAPT_vect)
 	// go through the bits
 	if (CmdDone == 0 && CmdMatch != 1)
 	{
+		// Wait until startbit detected
 		if (StartBit == 0)
 		{
 			if (ICRValue > 740 && ICRValue < 760)
@@ -107,17 +116,21 @@ ISR(TIMER1_CAPT_vect)
 				StartBit = 1;
 			}
 		}
+		// If startbit is detected, sample new command
 		else
 		{
 			// If time between two falling edges is 1800µs (range: 1760us - 1840us)
 			if (ICRValue > 440 && ICRValue < 460)
 			{
+				// Set bit at this position to 1
 				RC5_cmd_val |= (1 << --CmdBitNumber);
 			}
 			else
 			{
+				// CmdBitNumber minus 1 -> bit at this position stays 0
 				CmdBitNumber--;
 			}
+			// If 7 bits are sampled, set CmdDone to 1
 			if (CmdBitNumber == 0)
 			{
 				CmdDone = 1;
