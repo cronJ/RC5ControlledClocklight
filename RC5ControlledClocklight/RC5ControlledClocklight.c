@@ -19,16 +19,17 @@
 // Includes
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/sleep.h>
 
 // Command to be compared
 #define RC5_CMD 0x5E
 
-// Signal from TSOP1738 connected to PD6
+// Signal from TSOP1738 connected to PB0
 #define RC5_DDR DDRB
 #define RC5_PORT PORTB
 #define RC5_IN PB0
 
-// Output to switch LEDs on at PA0
+// Output to switch LEDs on at PC0
 #define LED_DDR DDRC
 #define LED_PORT PORTC
 #define LED_OUT PC0
@@ -64,13 +65,17 @@ int main(void)
 	InitTimer0();
 	
 	// Set LED pin to output
-	LED_DDR = (1 << LED_OUT); 
+	LED_DDR = (1 << LED_OUT);
 	
 	// Enable interrupts
 	sei();
 	
     while(1)
     {
+		// Sleep Mode
+		set_sleep_mode(SLEEP_MODE_IDLE);
+		sleep_mode();
+		
 		// If command exists ... compare
 		if (CmdDone == 1)
 		{
@@ -79,7 +84,7 @@ int main(void)
 			{
 				// Set output to 1
 				LED_PORT |= (1 << LED_OUT);
-				// Set CmdMatch to 1 ... no new command will be sampled 
+				// Set CmdMatch to 1 ... no new command will be sampled
 				CmdMatch = 1;
 				// Set TimerValue to zero
 				TimerValue = 0;
@@ -92,7 +97,7 @@ int main(void)
 			CmdBitNumber = 7;
 			StartBit = 0;
 			CmdDone = 0;
-		}				 			
+		}			 			
     }
 }
 
@@ -136,7 +141,7 @@ ISR(TIMER1_CAPT_vect)
 				CmdDone = 1;
 			}
 		}
-	}	
+	}
 }
 
 // Turn the LED output off after 5 seconds. Reset Timer1 values
