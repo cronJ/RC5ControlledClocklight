@@ -74,7 +74,7 @@ int main(void)
     {
 		// Sleep Mode
 		set_sleep_mode(SLEEP_MODE_IDLE);
-		sleep_mode();
+		sleep_mode(); 
 		
 		// If command exists ... compare
 		if (CmdDone == 1)
@@ -82,6 +82,9 @@ int main(void)
 			// If matches required command
 			if (RC5_cmd_val == RC5_CMD)
 			{
+				// Sleep disablen
+				//sleep_disable();
+				
 				// Set output to 1
 				LED_PORT |= (1 << LED_OUT);
 				// Set CmdMatch to 1 ... no new command will be sampled
@@ -97,7 +100,7 @@ int main(void)
 			CmdBitNumber = 7;
 			StartBit = 0;
 			CmdDone = 0;
-		}			 			
+		}			
     }
 }
 
@@ -165,6 +168,10 @@ ISR(TIMER0_OVF_vect)
 		StartBit = 0;
 		CmdDone = 0;
 		CmdMatch = 0;
+		
+		// Sleep mode
+		//sleep_enable();
+		//sleep_cpu();
 	}
 }
 
