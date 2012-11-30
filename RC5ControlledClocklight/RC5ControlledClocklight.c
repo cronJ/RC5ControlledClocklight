@@ -2,19 +2,19 @@
  * RC5ControlledClocklight.cpp
  *
  * Created: 07.11.2012 19:09:32
- *  Author: Alexander Ransmann
- *	Description:	Turn on an LED ring behind a clock, with an IR remote. 
- *					Measure time between two falling edges:
+ * Author: Alexander Ransmann
+ * Description:	Turn on an LED ring behind a clock, with an IR remote.
+ *	Measure time between two falling edges:
  *
- *					3000탎 => startbit
- *					1800탎 => logical 1
- *					1200탎 => logical 0
- *					45ms   => break between the command and the repeat of the command
+ *	3000us => startbit
+ *	1800us => logical 1
+ *	1200us => logical 0
+ *	45ms   => break between the command and the repeat of the command
  *
- *					Actually, only the command is compared. The address from the remote is not compared (maybe soon).
- *					Sony SIRCS code!
- *					Atmel ATmega8
- */ 
+ *	Actually, only the command is compared. The address from the remote is not compared (maybe soon).
+ *	Sony SIRCS code!
+ *	Atmel ATmega8
+ */
 
 // Includes
 #include <avr/io.h>
@@ -63,19 +63,19 @@ int main(void)
 	// Timer initialize
 	InitTimer1();
 	InitTimer0();
-	
+
 	// Set LED pin to output
 	LED_DDR = (1 << LED_OUT);
-	
+
 	// Enable interrupts
 	sei();
-	
-    while(1)
-    {
+
+	while(1)
+	{
 		// Sleep Mode
 		set_sleep_mode(SLEEP_MODE_IDLE);
-		sleep_mode(); 
-		
+		sleep_mode();
+
 		// If command exists ... compare
 		if (CmdDone == 1)
 		{
@@ -84,7 +84,7 @@ int main(void)
 			{
 				// Sleep disablen
 				//sleep_disable();
-				
+
 				// Set output to 1
 				LED_PORT |= (1 << LED_OUT);
 				// Set CmdMatch to 1 ... no new command will be sampled
@@ -94,14 +94,14 @@ int main(void)
 				// Start counting
 				StartTimer0();
 			}
-			
+
 			// Reset all values
 			RC5_cmd_val = 0x00;
 			CmdBitNumber = 7;
 			StartBit = 0;
 			CmdDone = 0;
-		}			
-    }
+		}
+	}
 }
 
 // Calculate time between two falling edges in the interrupt
@@ -109,7 +109,7 @@ ISR(TIMER1_CAPT_vect)
 {
 	// Set counter to zero (TCNT1 is now in ICR1)
 	TCNT1 = 0;
-	
+
 	// Read the Input Capture Registers
 	ICRValue = ICR1;
 
@@ -151,24 +151,24 @@ ISR(TIMER1_CAPT_vect)
 ISR(TIMER0_OVF_vect)
 {
 	TimerValue++;
-	
+
 	//LED_PORT |= (1 << LED_OUT);
-	
+
 	if (TimerValue == 39063) // 256 * 500ns * 39063 = 5,000064s
 	{
 		// Toggle LED output off
 		LED_PORT &= ~(1 << LED_OUT);
-		
+
 		// Stop Timer0
 		StopTimer0();
-		
+
 		// Reset values
 		RC5_cmd_val = 0x00;
 		CmdBitNumber = 7;
 		StartBit = 0;
 		CmdDone = 0;
 		CmdMatch = 0;
-		
+
 		// Sleep mode
 		//sleep_enable();
 		//sleep_cpu();
@@ -180,17 +180,17 @@ void InitTimer1()
 {
 	// Falling edge detection | clk/64= 4탎
 	TCCR1B |= ((1 << CS11) | (1 << CS10));
-	
+
 	// Input Capture Interrupt enable
 	TIMSK |= (1 << TICIE1);
-	
+
 	// Configure input for TSOP1738 signal
 	RC5_DDR &= ~(1 << RC5_IN);
 }
 
 // Initialize Timer0 for the LED output
 void InitTimer0()
-{	
+{
 	// Overflow Interrupt Enable
 	TIMSK |= (1 << TOIE0);
 }
