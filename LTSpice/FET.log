@@ -1,0 +1,24 @@
+Circuit: * D:\Projekte\Atmel\RC5ControlledClocklight\LTSpice\FET.asc
+
+Limiting rise time of source v1 to 0.5
+Limiting fall time of source v1 to 0.5
+Direct Newton iteration for .op point succeeded.
+
+Date: Sun Nov 25 15:47:06 2012
+Total elapsed time: 0.249 seconds.
+
+tnom = 27
+temp = 27
+method = modified trap
+totiter = 20504
+traniter = 20498
+tranpoints = 10120
+accept = 10089
+rejected = 31
+matrix size = 10
+fillins = 0
+solver = Normal
+Matrix Compiler1: 426 Bytes object code size  0.2/0.1/[0.1]
+Matrix Compiler2: off  [0.1]/0.1/0.1
+
+
